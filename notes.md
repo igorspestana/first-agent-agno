@@ -76,3 +76,10 @@ uv add agno fastapi google-genai
 ```
 
 O comando uv add agno fastapi google-genai usa a ferramenta uv para instalar os pacotes agno, fastapi e google-genai no ambiente virtual ativo.
+
+# Instalar tools
+```
+uv add googlesearch-python pycountry
+```
+
+Para utilizar a tool GoogleSearchTools, é necessário instalar o pacote googlesearch-python e pycountry.
