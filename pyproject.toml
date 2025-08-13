@@ -1,0 +1,11 @@
+[project]
+name = "first-agent-agno"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "agno>=1.7.10",
+    "fastapi>=0.116.1",
+    "google-genai>=1.29.0",
+]
