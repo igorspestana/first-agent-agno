@@ -161,3 +161,13 @@ Quando você executa o código:
 Você possui um sistema de memória em duas camadas:
 - Um histórico de chat para contexto imediato.
 - Um banco de dados de fatos para conhecimento permanente e estruturado.
+
+# Instalar o uvicorn
+```
+uv add uvicorn
+```
+
+# Executar o servidor
+```
+uv run uvicorn main:app --reload
+```

@@ -1,5 +1,7 @@
 
 import os
+from fastapi import FastAPI
+from pydantic import BaseModel
 from agno.agent import Agent
 from agno.models.google import Gemini
 from dotenv import load_dotenv
@@ -10,6 +12,11 @@ from agno.memory.v2.memory import Memory
 # Carrega as variáveis de ambiente
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(BASEDIR, '.env'))
+
+router = FastAPI()
+
+class Body(BaseModel):
+    message: str
 
 storage = SqliteStorage(table_name="agno_sessions", db_file="tmp/agents.db")
 memory = Memory(
@@ -22,8 +29,8 @@ memory = Memory(
 
 # Configura o agente com a chave de API
 agent = Agent(
-    session_id="s_124",
-    user_id="u_1",
+    session_id="s_125",
+    user_id="u_2",
     model=Gemini(
         id=os.environ['DEFAULT_MODEL'],
         api_key=os.environ['GOOGLE_API_KEYS']
@@ -34,7 +41,7 @@ agent = Agent(
     enable_agentic_memory=True,
 )
 
-if __name__ == "__main__":
-    # agent.print_response("Meu nome é Pedro, e eu tenho 26 anos.")
-    agent.print_response("Qual é o meu nome?")
-    agent.print_response("Qual é a minha idade?")
+@router.post('/run')
+async def run(body: Body):
+    response = agent.run(body.message)
+    return {"response:", response.content}
