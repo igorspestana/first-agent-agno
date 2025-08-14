@@ -4,6 +4,7 @@ from agno.agent import Agent
 from agno.models.google import Gemini
 from dotenv import load_dotenv
 from agno.tools.googlesearch import GoogleSearchTools
+from agno.tools.reasoning import ReasoningTools
 
 # Carrega as variáveis de ambiente
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
@@ -19,7 +20,16 @@ agent = Agent(
         "Use tabelas para organizar as informações.",
         "Inclua apenas a tabela na resposta. Sem nenhum outro texto."
     ],
-    tools=[GoogleSearchTools()],
+    tools=[
+        ReasoningTools(add_instructions=True),
+        GoogleSearchTools()
+    ],
 )
 
-agent.print_response("Faça um comparativo entre os países da Europa e os países da América Latina, com base na densidade populacional.", stream=True)
+agent.print_response(
+    "Faça um comparativo entre os países da Europa e os países da América Latina, com base na densidade populacional.", 
+    stream=True,
+    show_tool_calls=True,
+    show_function_calls=True,
+    stream_intermediate_steps=True,
+)
