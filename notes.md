@@ -83,3 +83,81 @@ uv add googlesearch-python pycountry
 ```
 
 Para utilizar a tool GoogleSearchTools, é necessário instalar o pacote googlesearch-python e pycountry.
+
+# Uso de memória
+
+## Como funciona a memória no código?
+
+O código utiliza **dois mecanismos de memória complementares**, que trabalham juntos para fornecer contexto e inteligência ao agente:
+
+---
+
+### 1. Memória de Conversa (Histórico)
+
+- **Arquivo:** `tmp/agents.db`
+- **Configuração:**
+  ```python
+  storage = SqliteStorage(table_name="agno_sessions", db_file="tmp/agents.db")
+
+  agent = Agent(
+      # ...
+      add_history_to_messages=True,
+      storage=storage,
+      # ...
+  )
+  ```
+- **O que faz:**  
+  Armazena o histórico bruto da conversa (mensagens enviadas e respostas do agente) em um banco SQLite.
+- **Como funciona:**  
+  O parâmetro `add_history_to_messages=True` faz com que o agente inclua automaticamente as mensagens anteriores no prompt a cada nova interação, garantindo contexto de conversa.
+- **Analogia:**  
+  Funciona como o histórico de um chat, permitindo "rolar para cima" e ver o que foi dito antes.
+
+---
+
+### 2. Memória Agêntica (O "Cérebro" do Agente)
+
+- **Arquivo:** `tmp/memory.db`
+- **Configuração:**
+  ```python
+  memory = Memory(
+      db=SqliteMemoryDb(table_name="agno_memory", db_file="tmp/memory.db"),
+      model=Gemini(...)  # Usa um modelo para processar a memória
+  )
+
+  agent = Agent(
+      # ...
+      memory=memory,
+      enable_agentic_memory=True,  # Ativa a memória agêntica
+      # ...
+  )
+  ```
+- **O que faz:**  
+  Vai além do histórico: utiliza um modelo de linguagem (Gemini) para extrair fatos e informações importantes da conversa, salvando-os de forma estruturada.
+- **Como funciona:**  
+  1. Ao receber uma frase como "Meu nome é Pedro, e eu tenho 26 anos.", o agente não apenas armazena a frase.
+  2. Com `enable_agentic_memory=True`, o objeto `memory` é ativado e usa o modelo Gemini para entender o significado.
+  3. Fatos principais são extraídos, como `nome_do_usuario = Pedro` e `idade_do_usuario = 26`.
+  4. Esses fatos são salvos organizadamente no banco `memory.db`.
+- **Analogia:**  
+  Funciona como o cérebro de uma pessoa: não memoriza cada palavra, mas sim os conceitos e fatos importantes.
+
+---
+
+### Resumo do Fluxo
+
+Quando você executa o código:
+
+1. `agent.print_response("Meu nome é Pedro, e eu tenho 26 anos.")`
+   - A frase é salva no histórico (`agents.db`).
+   - A memória agêntica extrai e salva os fatos (nome = Pedro, idade = 26) em `memory.db`.
+2. `agent.print_response("Qual é o meu nome?")`
+   - O agente consulta primeiro a memória agêntica (`memory.db`).
+   - Encontra o fato `nome = Pedro` e responde: "Seu nome é Pedro."
+
+---
+
+**Resumo:**  
+Você possui um sistema de memória em duas camadas:
+- Um histórico de chat para contexto imediato.
+- Um banco de dados de fatos para conhecimento permanente e estruturado.
